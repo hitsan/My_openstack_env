@@ -1,0 +1,92 @@
+---
+- hosts: controller_server
+  become: yes
+  tasks:
+  - name: Stop firewalld
+    service:
+      name: firewalld
+      state: stopped
+      enabled: no
+  - name: Install libselinux 
+    yum:
+      name: libselinux-python
+      state: installed
+  - name: SELinux disable
+    selinux: 
+      state: disabled
+  - name: Stop NetworkManager
+    service:
+      name: NetworkManager
+      state: stopped
+      enabled: no
+  - name: Start network
+    service:
+      name: network
+      state: started
+      enabled: yes
+  - name: modify permit root login yes 
+    replace:
+      dest: /etc/ssh/sshd_config
+      regexp: "#PermitRootLogin yes"
+      replace: "PermitRootLogin yes"
+  - name: install ruby(2.5.0)1
+    yum:
+      name: centos-release-scl
+      state: installed
+  - name: install ruby(2.5.0)2
+    yum:
+      name: rh-ruby25
+      state: installed
+  - name: set enviroment ruby
+    copy:
+      src: "{{ inventory_dir }}/rh-ruby25.sh"
+      dest: "/etc/profile.d/rh-ruby25.sh"
+      mode: 0770
+  # - name: make .ssh
+  #   file:
+  #     path: /root/.ssh
+  #     state: directory
+  #     mode: 0700
+  # - name: Generate key root
+  #   openssh_keypair:
+  #     path: /root/.ssh/id_rsa
+  # - name: chmod key
+  #   file:
+  #     path: /root/.ssh/id_rsa.pub
+  #     mode: 0600
+  # - name: copy user authorized_keys to root
+  #   shell: cat /home/vagrant/.ssh/authorized_keys >> .ssh/authorized_keys
+  # - name: make authorized_keys
+  #   shell: cat /root/.ssh/id_rsa.pub >> /vagrant_data/authorized_keys
+  # - name: cp authorized_keys
+  #   shell: cp /vagrant_data/authorized_keys /root/.ssh/
+  # - name: chmod authorized_keys
+  #   file:
+  #     path: /root/.ssh/authorized_keys
+  #     mode: 0600
+  - name: reboot
+    reboot:   
+
+- hosts: controller_server
+  become: yes  
+  tasks:
+  - name: install open train
+    yum:
+      name: centos-release-openstack-train
+      state: installed
+  - name: update packages
+    yum: 
+      name: '*' 
+      state: latest
+  - name: packStack
+    yum:
+      name: openstack-packstack
+      state: installed
+  - name: set enviroment ruby
+    copy:
+      src: "{{ inventory_dir }}/answers.cfg"
+      dest: "/root/answers.cfg"
+      owner: root
+      group: root
+      mode: 0770
+

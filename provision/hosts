@@ -1,0 +1,14 @@
+[controller_server]
+cont ansible_host=192.168.11.11
+cont ansible_user=vagrant
+
+[compute_server]
+com1 ansible_host=192.168.11.12
+com1 ansible_user=vagrant
+
+com2 ansible_host=192.168.11.13
+com2 ansible_user=vagrant
+
+[network_server]
+net ansible_host=192.168.11.14
+net ansible_user=vagrant
